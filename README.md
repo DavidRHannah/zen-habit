@@ -12,8 +12,8 @@ production environment (e.g., Vercel).
 Open your terminal and run:
 
 ``` {.bash language="bash"}
-git clone https://github.com/yourusername/my-study-tool.git
-cd my-study-tool
+git clone https://github.com/DavidRHannah/zen-habit.git
+cd zen-habit
 ```
 
 ## Install Dependencies
