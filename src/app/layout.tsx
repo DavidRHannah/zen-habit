@@ -1,22 +1,19 @@
 import './globals.css';
 import { ReactNode } from 'react';
 import Header from '../components/Header';
-import Footer from '../components/Footer'
+import Footer from '../components/Footer';
+
 export const metadata = {
-  title: 'Zen Habits',
-  description: 'Unlock your inner zen by practicing zen habits',
+  title: 'Zen Habit',
+  description: 'A gamified habit tracker to build zen routines and grow your virtual garden.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
         <Header />
-        <main style={{ padding: '2rem' }}>{children}</main>
+        <main className="container" style={{ padding: '2rem 0' }}>{children}</main>
         <Footer />
       </body>
     </html>

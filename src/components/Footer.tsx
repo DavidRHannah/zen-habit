@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
         marginTop: '2rem'
       }}
     >
-      <p>&copy; {new Date().getFullYear()} My Study Tool. All rights reserved.</p>
+      <p>&copy; {new Date().getFullYear()} Zen Habit. All rights reserved.</p>
     </footer>
   );
 };

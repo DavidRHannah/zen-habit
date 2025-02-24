@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import HabitItem from './HabitItem';
 
 interface Habit {
   id: string;
@@ -35,11 +36,11 @@ const HabitTracker: React.FC = () => {
     if (!newTask) return;
     const { error } = await supabase.from('habits').insert([
       {
-        user_id: 'user-id-placeholder', // Replace with actual user id
+        user_id: 'user-id-placeholder', // Replace with actual user id from auth
         date: new Date().toISOString().split('T')[0],
         task: newTask,
         completed: false,
-        points: 0
+        points: 10  // Award 10 points per habit added
       }
     ]);
     if (error) {
@@ -50,11 +51,11 @@ const HabitTracker: React.FC = () => {
     }
   };
 
-  const toggleHabit = async (habit: Habit) => {
+  const toggleHabit = async (id: string, currentStatus: boolean) => {
     const { error } = await supabase
       .from('habits')
-      .update({ completed: !habit.completed })
-      .eq('id', habit.id);
+      .update({ completed: !currentStatus })
+      .eq('id', id);
     if (error) {
       console.error('Error updating habit:', error);
     } else {
@@ -65,7 +66,7 @@ const HabitTracker: React.FC = () => {
   return (
     <div style={{ padding: '1rem', background: '#fff', borderRadius: '8px', marginBottom: '1rem' }}>
       <h2>Habit Tracker</h2>
-      <div>
+      <div style={{ marginBottom: '1rem' }}>
         <input
           type="text"
           placeholder="Enter new habit"
@@ -75,17 +76,15 @@ const HabitTracker: React.FC = () => {
         />
         <button onClick={addHabit}>Add Habit</button>
       </div>
-      <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
         {habits.map((habit) => (
-          <li key={habit.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <input
-              type="checkbox"
-              checked={habit.completed}
-              onChange={() => toggleHabit(habit)}
-              style={{ marginRight: '0.5rem' }}
-            />
-            <span style={{ textDecoration: habit.completed ? 'line-through' : 'none' }}>{habit.task}</span>
-          </li>
+          <HabitItem
+            key={habit.id}
+            id={habit.id}
+            task={habit.task}
+            completed={habit.completed}
+            toggleHabit={toggleHabit}
+          />
         ))}
       </ul>
     </div>

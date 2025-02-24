@@ -13,7 +13,6 @@ const SubscriptionButton: React.FC = () => {
         body: JSON.stringify({ customerId: 'user-id-placeholder' }) // Replace with actual user id
       });
       const { sessionId } = await res.json();
-      // Redirect to Stripe Checkout
       window.location.href = sessionId
         ? `https://checkout.stripe.com/pay/${sessionId}`
         : '/subscription';

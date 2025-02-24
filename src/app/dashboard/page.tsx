@@ -1,11 +1,13 @@
+import GardenView from '../../components/GardenView';
 import HabitTracker from '../../components/HabitTracker';
-import StudySession from '../../components/StudySession';
+import GamificationPanel from 'components/GamificationPanel';
 
 export default function Dashboard() {
   return (
     <div>
       <h1>Dashboard</h1>
-      <StudySession />
+      <GamificationPanel />
+      <GardenView />
       <HabitTracker />
     </div>
   );
