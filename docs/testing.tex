@@ -1,0 +1,240 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{parskip}
+\geometry{margin=1in}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue,
+  pdftitle={My Study Tool - Testing and Deployment Documentation},
+  pdfpagemode=FullScreen,
+}
+
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegray},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize\ttfamily,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\title{My Study Tool - Testing and Deployment Documentation}
+\author{Your Name}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+This document provides a step-by-step guide for testing, debugging, and deploying the My Study Tool application. It covers local development setup, using Stripe webhooks with the Stripe CLI, and deploying to a production environment (e.g., Vercel).
+
+\section{Local Development Setup}
+
+\subsection{Clone the Repository}
+Open your terminal and run:
+\begin{lstlisting}[language=bash]
+git clone https://github.com/yourusername/my-study-tool.git
+cd my-study-tool
+\end{lstlisting}
+
+\subsection{Install Dependencies}
+Run the following command:
+\begin{lstlisting}[language=bash]
+npm install
+\end{lstlisting}
+Alternatively, if you use Yarn:
+\begin{lstlisting}[language=bash]
+yarn install
+\end{lstlisting}
+
+\subsection{Configure Environment Variables}
+Create a file named \texttt{.env.local} in the root of your project and add the following content:
+\begin{lstlisting}[language=bash]
+NEXT_PUBLIC_SUPABASE_URL=https://your-supabase-project-url.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_PRICE_ID=your_stripe_price_id
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+\end{lstlisting}
+Adjust the values as needed.
+
+\subsection{Database Setup}
+Ensure your Supabase project contains the required tables:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Profiles:} Stores extra user details such as \texttt{stripe\_customer\_id} and \texttt{subscription\_status}.
+    \item \textbf{Habits:} Tracks user habits, completion status, and points.
+    \item \textbf{Study Sessions:} Logs study sessions and earned points.
+\end{itemize}
+
+\section{Local Testing}
+
+\subsection{Running the Development Server}
+Start your Next.js app in development mode:
+\begin{lstlisting}[language=bash]
+npm run dev
+\end{lstlisting}
+Then, visit \url{http://localhost:3000} in your browser to test pages such as Home, Dashboard, and Subscription.
+
+\subsection{Testing Supabase Integration}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{User Data \& Tables:} Use the Supabase dashboard to verify that your tables (\texttt{profiles}, \texttt{habits}, \texttt{study\_sessions}) are correctly receiving data when you create or update records from your application.
+    \item \textbf{Real-Time Updates:} If you use Supabase's real-time features, check that changes are immediately reflected in your application UI.
+\end{itemize}
+
+\subsection{Testing Stripe Webhooks}
+
+\subsubsection{Using the Stripe CLI}
+
+\paragraph{Install the Stripe CLI:}
+Follow the installation guide available at \url{https://stripe.com/docs/stripe-cli#install}. For example, on macOS:
+\begin{lstlisting}[language=bash]
+brew install stripe/stripe-cli/stripe
+\end{lstlisting}
+
+\paragraph{Login and Authenticate:}
+Run:
+\begin{lstlisting}[language=bash]
+stripe login
+\end{lstlisting}
+
+\paragraph{Forward Webhook Events:}
+Run the following command to forward Stripe events to your local webhook endpoint:
+\begin{lstlisting}[language=bash]
+stripe listen --forward-to http://localhost:3000/api/stripe-webhook
+\end{lstlisting}
+The CLI will output a webhook secret; verify that this secret matches your \texttt{STRIPE\_WEBHOOK\_SECRET} in your \texttt{.env.local}.
+
+\paragraph{Trigger Test Events:}
+To simulate a checkout session completion, run:
+\begin{lstlisting}[language=bash]
+stripe trigger checkout.session.completed
+\end{lstlisting}
+Check your terminal and logs to ensure that the event is received and processed by your webhook endpoint (e.g., updating the Supabase \texttt{profiles} table).
+
+\section{Automated Testing}
+
+\subsection{Unit and Integration Tests}
+Consider setting up tests using frameworks such as \href{https://jestjs.io/}{Jest} and \href{https://testing-library.com/docs/react-testing-library/intro}{React Testing Library}. Example commands:
+\begin{lstlisting}[language=bash]
+npm run test
+\end{lstlisting}
+or
+\begin{lstlisting}[language=bash]
+yarn test
+\end{lstlisting}
+
+\subsection{Linting}
+Ensure your code adheres to style guidelines:
+\begin{lstlisting}[language=bash]
+npm run lint
+\end{lstlisting}
+or
+\begin{lstlisting}[language=bash]
+yarn lint
+\end{lstlisting}
+
+\textit{Note: You may need to add specific test configurations and scripts based on your chosen testing framework.}
+
+\section{Deployment Guide}
+
+\subsection{Pre-deployment Checklist}
+Before deploying your application, ensure:
+\begin{itemize}[leftmargin=*]
+    \item All environment variables are set correctly for production (use live API keys for Stripe and the production URL for Supabase).
+    \item Your Supabase tables are correctly configured.
+    \item The application has been thoroughly tested locally.
+    \item You have set up your webhook endpoint in Stripe to point to your production URL (e.g., \url{https://yourdomain.com/api/stripe-webhook}).
+\end{itemize}
+
+\subsection{Deploying with Vercel}
+
+\subsubsection{Push Your Code to GitHub (or your Git provider)}
+Ensure your latest changes are committed and pushed.
+
+\subsubsection{Sign Up / Log In to Vercel}
+Go to \url{https://vercel.com} and link your GitHub repository.
+
+\subsubsection{Configure Environment Variables on Vercel}
+In your project dashboard on Vercel, navigate to \textbf{Settings > Environment Variables} and add:
+\begin{lstlisting}[language=bash]
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+STRIPE_SECRET_KEY
+STRIPE_PRICE_ID
+STRIPE_WEBHOOK_SECRET
+NEXT_PUBLIC_BASE_URL   % Set to your production URL
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+\end{lstlisting}
+
+\subsubsection{Deploy Your Application}
+Vercel automatically deploys when you push to the main branch. You can also trigger manual deployments from the Vercel dashboard.
+
+\subsubsection{Verify Deployment}
+\begin{itemize}[leftmargin=*]
+    \item Visit your production URL.
+    \item Test key features (e.g., creating checkout sessions, webhook events, and Supabase integration).
+\end{itemize}
+
+\section{Troubleshooting and Next Steps}
+
+\subsection{Logs and Monitoring}
+\begin{itemize}[leftmargin=*]
+    \item Use Vercel’s dashboard for real-time logs.
+    \item Monitor the Stripe Dashboard and Supabase logs for any errors.
+\end{itemize}
+
+\subsection{Local Debugging}
+\begin{itemize}[leftmargin=*]
+    \item Continue using the Stripe CLI to simulate webhook events.
+    \item Utilize browser developer tools and your IDE’s debugging features for frontend issues.
+\end{itemize}
+
+\subsection{Documentation Updates}
+\begin{itemize}[leftmargin=*]
+    \item Update this document as you add features or change configurations.
+    \item Maintain version control for this documentation alongside your code.
+\end{itemize}
+
+\subsection{Continuous Integration}
+Consider setting up CI/CD (e.g., using GitHub Actions) to run tests automatically on each push.
+
+\section{Further References}
+For additional details, please refer to:
+\begin{itemize}[leftmargin=*]
+    \item \href{https://stripe.com/docs}{Stripe Documentation}
+    \item \href{https://supabase.com/docs}{Supabase Documentation}
+    \item \href{https://nextjs.org/docs}{Next.js Documentation}
+    \item \href{https://vercel.com/docs}{Vercel Documentation}
+\end{itemize}
+
+\end{document}
