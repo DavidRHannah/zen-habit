@@ -72,3 +72,5 @@ temp/
 
 # Optional: Ignore local database files if using a local Supabase setup
 supabase/data/
+
+reuse/
